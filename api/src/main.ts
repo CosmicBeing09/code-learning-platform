@@ -36,7 +36,9 @@ app.post('/api/users', async (req, res) => {
       data: {
         email: req.body.email,
         password: req.body.password,
-        name: req.body.name
+        name: req.body.name,
+        targetLanguage: req.body.targetLanguage || 'ENGLISH', // Adding required field with default
+        experienceLevel: req.body.experienceLevel || 'BEGINNER' // Adding required field with default
       }
     });
     res.json(user);

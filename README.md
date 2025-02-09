@@ -11,33 +11,35 @@ Required software:
 - PostgreSQL >= 14.x
 - npm >= 9.x
 
-Installation commands:
+Installation commands using Homebrew:
 
 ```bash
-# Install/Update Node.js and npm (Ubuntu/Debian)
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
+# Install Homebrew (if not already installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Node.js (includes npm)
+brew install node
 
 # Verify installations
 node --version  # Should be >= 18.x
 npm --version   # Should be >= 9.x
 
 # Update npm to latest version if needed
-sudo npm install -g npm@latest
+npm install -g npm@latest
 
-# Install PostgreSQL (Ubuntu/Debian)
-sudo apt-get install postgresql-14
+# Install PostgreSQL
+brew install postgresql@14
+
+# Start PostgreSQL service
+brew services start postgresql@14
 
 # Verify PostgreSQL installation
 psql --version  # Should be >= 14.x
-
-# Start PostgreSQL service
-sudo service postgresql start
 ```
 
 For other operating systems:
-- Node.js: Download from [nodejs.org](https://nodejs.org/)
-- PostgreSQL: Download from [postgresql.org](https://www.postgresql.org/download/)
+- Windows: Download installers from [nodejs.org](https://nodejs.org/) and [postgresql.org](https://www.postgresql.org/download/)
+- Linux: Use package managers like apt (Ubuntu/Debian) or dnf (Fedora)
 
 ### 2. Project Installation
 
@@ -46,7 +48,7 @@ For other operating systems:
 npm install -g nx
 
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/CosmicBeing09/code-learning-platform.git
 cd code-learning-platform
 
 # Install dependencies
@@ -245,4 +247,3 @@ Expected responses:
 - Database test: `{"message": "Database connection successful!"}`
 - User creation: Returns the created user object
 - Root endpoint: "Hello from the Code Learning Platform API!"
-```
