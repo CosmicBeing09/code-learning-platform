@@ -1,101 +1,248 @@
-# CodeLearningPlatform
+# Code Learning Platform
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+An interactive platform for learning programming built with React, Express, and PostgreSQL using Nx workspace.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Setup Instructions
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/react-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+### 1. Prerequisites
 
-## Run tasks
+Required software:
+- Node.js >= 18.x
+- PostgreSQL >= 14.x
+- npm >= 9.x
 
-To run the dev server for your app, use:
+Installation commands:
 
-```sh
-npx nx serve code-learning-platform
+```bash
+# Install/Update Node.js and npm (Ubuntu/Debian)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Verify installations
+node --version  # Should be >= 18.x
+npm --version   # Should be >= 9.x
+
+# Update npm to latest version if needed
+sudo npm install -g npm@latest
+
+# Install PostgreSQL (Ubuntu/Debian)
+sudo apt-get install postgresql-14
+
+# Verify PostgreSQL installation
+psql --version  # Should be >= 14.x
+
+# Start PostgreSQL service
+sudo service postgresql start
 ```
 
-To create a production bundle:
+For other operating systems:
+- Node.js: Download from [nodejs.org](https://nodejs.org/)
+- PostgreSQL: Download from [postgresql.org](https://www.postgresql.org/download/)
 
-```sh
-npx nx build code-learning-platform
+### 2. Project Installation
+
+```bash
+# Install Nx CLI globally
+npm install -g nx
+
+# Clone the repository
+git clone <repository-url>
+cd code-learning-platform
+
+# Install dependencies
+npm install
 ```
 
-To see all available targets to run for a project, run:
+### 3. Database Configuration
 
-```sh
-npx nx show project code-learning-platform
+1. Start your PostgreSQL server and create a database:
+
+```bash
+psql -U postgres
+CREATE DATABASE code_learning_db;
+\q
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+2. Set up environment variables:
+```bash
+# Navigate to api directory
+cd api
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# Create .env file (if not exists)
+touch .env
 
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/react:app demo
+# Add the following to .env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/code_learning_db"
+PORT=3333
+JWT_SECRET="your-super-secret-key-here"
 ```
 
-To generate a new library, use:
+3. Run database migrations:
+```bash
+# From api directory
+npx prisma migrate dev
 
-```sh
-npx nx g @nx/react:lib mylib
+# Generate Prisma client
+npx prisma generate
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### 4. Running the Application
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. First, ensure PostgreSQL service is running:
 
-## Set up CI!
+```bash
+# For Ubuntu/Debian
+sudo service postgresql start
 
-### Step 1
+# For macOS (if installed through Homebrew)
+brew services start postgresql
 
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+# For Windows (if running as a service, check status in Services app)
+# Or start manually from Command Prompt as Administrator:
+net start postgresql
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+2. Start both frontend and backend servers:
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Start the backend API (from root directory)
+nx serve api
 
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+# In a new terminal, start the frontend (from root directory)
+nx serve
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Access the application:
+- Frontend: http://localhost:4200
+- Backend API: http://localhost:3333
 
-## Install Nx Console
+## Project Structure
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+```
+code-learning-platform/
+├── api/
+│   ├── prisma/
+│   │   ├── schema.prisma      # Database schema
+│   │   └── migrations/        # Database migrations
+│   └── src/                   # Backend source code
+├── src/
+│   ├── app/
+│   │   ├── components/        # React components
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   └── Navigation.tsx
+│   │   └── pages/
+│   │       └── Home.tsx      # Home page component
+├── nx.json                    # Nx workspace config
+├── tailwind.config.js         # Tailwind CSS config
+└── tsconfig.app.json         # TypeScript config
+```
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Database Schema
 
-## Useful links
+The database includes the following main models:
 
-Learn more:
+```prisma
+// Key models from schema.prisma
+User
+├── Profile information
+├── Learning progress
+├── Social connections
+└── Authentication data
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/react-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Unit
+├── Learning content
+├── Progress tracking
+└── Exercise data
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Course
+├── Structured content
+└── Learning paths
+```
+
+## Available Scripts
+
+```bash
+# Start frontend development server
+nx serve
+
+# Start backend API server
+nx serve api
+
+# Build the application
+nx build
+
+# Run tests
+nx test
+```
+
+## Technology Stack
+
+### Frontend
+- React with TypeScript
+- Tailwind CSS for styling
+- React Router for navigation
+- React Query for data fetching
+
+### Backend
+- Express.js
+- Prisma ORM
+- PostgreSQL database
+- JWT authentication
+
+### Development Tools
+- Nx workspace for monorepo management
+- ESLint for code linting
+- TypeScript for type safety
+- Prettier for code formatting
+
+## Troubleshooting
+
+1. Database Connection Issues
+   - Verify PostgreSQL is running
+   - Check database credentials in api/.env
+   - Ensure database exists
+
+2. Build/Start Issues
+   - Clear node_modules: `rm -rf node_modules`
+   - Reinstall dependencies: `npm install`
+   - Check port availability (4200 for frontend, 3333 for backend)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Testing the API Endpoints
+
+You can test the API endpoints using curl commands:
+
+```bash
+# Test database connection
+curl http://localhost:3333/api/db-test
+
+# Create a new user
+curl -X POST http://localhost:3333/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "name": "Test User"
+  }'
+
+# Test the root endpoint
+curl http://localhost:3333/
+```
+
+Expected responses:
+- Database test: `{"message": "Database connection successful!"}`
+- User creation: Returns the created user object
+- Root endpoint: "Hello from the Code Learning Platform API!"
+```

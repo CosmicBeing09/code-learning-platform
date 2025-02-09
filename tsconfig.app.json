@@ -21,7 +21,9 @@
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
-    "vitest.config.mts"
+    "vitest.config.mts",
+    "src/app/components/ui/button.tsx",
+    "src/utils/cn.ts"
   ],
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
 }

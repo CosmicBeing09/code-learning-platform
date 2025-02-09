@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5432/code_learning_db"
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email            String    @unique
+  password         String
+  name             String?
+  avatar           String?   @default("default-avatar")
+  knownLanguages   String[]
+  targetLanguage   String
+  experienceLevel  String    // BEGINNER, INTERMEDIATE, ADVANCED
+  dailyGoalMinutes Int       @default(10)
+  xpPoints         Int       @default(0)
+  gems             Int       @default(0)
+  hearts           Int       @default(5)
+  currentStreak    Int       @default(0)
+  subscriptionTier String    @default("FREE") // FREE, TIER1, TIER2
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  progress         Progress[]
+  friends          Friends[]
+  messages         Message[]
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  unitId    String
+  completed Boolean  @default(false)
+  xpEarned  Int     @default(0)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  unit      Unit     @relation(fields: [unitId], references: [id])
+}
+
+model Unit {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  level       String     // BASIC, INTERMEDIATE, ADVANCED
+  type        String     // DATA_TYPES, FUNCTIONS, DATA_STRUCTURES, etc.
+  order       Int
+  parentId    String?    // For tree structure
+  xpReward    Int
+  timeLimit   Int        // in seconds
+  content     Json       // Stores exercise data
+  progress    Progress[]
+}
+
+model Friends {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  status    String   // PENDING, ACCEPTED
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  sender    User     @relation(fields: [senderId], references: [id])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
