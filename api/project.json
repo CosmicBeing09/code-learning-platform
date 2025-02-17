@@ -21,7 +21,9 @@
             "input": "api/src/assets",
             "output": "assets"
           }
-        ]
+        ],
+        "webpackConfig": "api/webpack.config.js",
+        "isolatedConfig": false
       },
       "configurations": {
         "development": {},

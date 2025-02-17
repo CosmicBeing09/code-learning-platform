@@ -1,10 +1,11 @@
-import { Navbar } from '../components/Navbar';
+import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { motion } from 'framer-motion';
 import { BookOpen, Code, Rocket } from 'lucide-react';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 
 const courses = [
   {
@@ -50,6 +51,7 @@ const courses = [
 
 export function Home() {
   const [showConfetti, setShowConfetti] = useState(false);
+  const navigate = useNavigate();
   
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -60,13 +62,29 @@ export function Home() {
   const handleStartLearning = () => {
     setShowConfetti(true);
     toast.success('Welcome aboard! Let\'s start learning');
+    
+    // Scroll to courses section with highlight effect
+    const coursesSection = document.getElementById('courses-section');
+    if (coursesSection) {
+      coursesSection.scrollIntoView({ behavior: 'smooth' });
+      coursesSection.classList.add('highlight-section');
+      setTimeout(() => {
+        coursesSection.classList.remove('highlight-section');
+      }, 1500);
+    }
+    
     setTimeout(() => setShowConfetti(false), 3000);
+  };
+
+  const handleCourseStart = (courseTitle: string) => {
+    navigate(`/course/${courseTitle.toLowerCase()}`);
+    toast.info(`Starting ${courseTitle} course`);
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       {showConfetti && <Confetti />}
-      <Navbar />
+      <Header />
       <main className="container mx-auto px-4 py-8 flex-grow">
         <motion.div 
           {...fadeIn}
@@ -78,15 +96,26 @@ export function Home() {
           <p className="text-xl text-gray-600 mb-8">
             Interactive lessons, real-world projects, and a supportive community
           </p>
-          <button 
-            onClick={handleStartLearning}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Start Learning Now
-          </button>
+          <div className="flex items-center justify-center gap-4">
+            <button 
+              onClick={handleStartLearning}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Start Learning Now
+            </button>
+            <Link
+              to="/learn"
+              className="px-6 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              View Learning Progress
+            </Link>
+          </div>
         </motion.div>
 
-        <section>
+        <section 
+          id="courses-section" 
+          className="transition-all duration-300"
+        >
           <h2 className="text-2xl font-bold mb-6">Available Courses</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
@@ -109,7 +138,7 @@ export function Home() {
                     ))}
                   </ul>
                   <button 
-                    onClick={() => toast.info(`Starting ${course.title} course`)}
+                    onClick={() => handleCourseStart(course.title)}
                     className="w-full px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-white/50 transition-colors"
                   >
                     Start Course

@@ -2,3 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 /* You can add global styles to this file, and also import other style files */
+
+@keyframes highlight {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.1); /* blue-600 with low opacity */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight-section {
+  animation: highlight 1.5s ease-in-out;
+  border-radius: 0.5rem;
+}
