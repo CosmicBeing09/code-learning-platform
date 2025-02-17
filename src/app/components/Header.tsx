@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Code2 } from 'lucide-react';
 
 export function Header() {
   const navigate = useNavigate();
@@ -14,6 +14,13 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-4">
+            <Link 
+              to="/translator"
+              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              <Code2 className="w-4 h-4" />
+              Code Translator
+            </Link>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('/login')}
