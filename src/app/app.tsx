@@ -10,6 +10,7 @@ import { CourseContent } from './pages/CourseContent';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { CodeTranslator } from './pages/CodeTranslator';
+import { Billing } from './pages/Billing';
 
 // Create a layout component to handle Navigation visibility
 function Layout({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,7 @@ export function App() {
           <Route path="/social" element={<Social />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/translator" element={<CodeTranslator />} />
+          <Route path="/billing" element={<Billing />} />
         </Routes>
       </Layout>
     </Router>
