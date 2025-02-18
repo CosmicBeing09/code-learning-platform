@@ -247,3 +247,30 @@ Expected responses:
 - Database test: `{"message": "Database connection successful!"}`
 - User creation: Returns the created user object
 - Root endpoint: "Hello from the Code Learning Platform API!"
+
+## Environment Variables
+
+Create a `.env` file in the `api` directory with the following variables:
+
+```bash
+# Database Configuration
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/code_learning_db"
+
+# Server Configuration
+PORT=3333
+
+# JWT Secret (for authentication)
+JWT_SECRET="your-super-secret-key-here"
+
+# OpenAI API Key
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+To get an OpenAI API key:
+1. Go to https://platform.openai.com/
+2. Create an account or sign in
+3. Navigate to API Keys section
+4. Create a new API key
+5. Copy the key and paste it in your .env file
+
+Note: Never commit your actual OpenAI API key to version control. The .env file is included in .gitignore to prevent accidental commits.

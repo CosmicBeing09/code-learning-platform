@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, CreditCard } from 'lucide-react';
 
 export function AuthHeader() {
   const navigate = useNavigate();
@@ -25,6 +25,13 @@ export function AuthHeader() {
             >
               <User className="w-4 h-4" />
               Profile
+            </Link>
+            <Link 
+              to="/billing"
+              className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              <CreditCard className="w-4 h-4" />
+              Billing
             </Link>
             <button
               onClick={handleLogout}
