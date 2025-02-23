@@ -8,25 +8,26 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  email            String    @unique
+  id               String          @id @default(cuid())
+  email            String          @unique
   password         String
   name             String?
-  avatar           String?   @default("default-avatar")
+  avatar           String?         @default("default-avatar")
   knownLanguages   String[]
   targetLanguage   String
-  experienceLevel  String    // BEGINNER, INTERMEDIATE, ADVANCED
-  dailyGoalMinutes Int       @default(10)
-  xpPoints         Int       @default(0)
-  gems             Int       @default(0)
-  hearts           Int       @default(5)
-  currentStreak    Int       @default(0)
-  subscriptionTier String    @default("FREE") // FREE, TIER1, TIER2
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  experienceLevel  String // BEGINNER, INTERMEDIATE, ADVANCED
+  dailyGoalMinutes Int             @default(10)
+  xpPoints         Int             @default(0)
+  gems             Int             @default(0)
+  hearts           Int             @default(5)
+  currentStreak    Int             @default(0)
+  subscriptionTier String          @default("FREE") // FREE, TIER1, TIER2
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
   progress         Progress[]
   friends          Friends[]
   messages         Message[]
+  topicProgress    TopicProgress[]
 }
 
 model Progress {
@@ -34,7 +35,7 @@ model Progress {
   userId    String
   unitId    String
   completed Boolean  @default(false)
-  xpEarned  Int     @default(0)
+  xpEarned  Int      @default(0)
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   unit      Unit     @relation(fields: [unitId], references: [id])
@@ -44,13 +45,13 @@ model Unit {
   id          String     @id @default(cuid())
   title       String
   description String
-  level       String     // BASIC, INTERMEDIATE, ADVANCED
-  type        String     // DATA_TYPES, FUNCTIONS, DATA_STRUCTURES, etc.
+  level       String // BASIC, INTERMEDIATE, ADVANCED
+  type        String // DATA_TYPES, FUNCTIONS, DATA_STRUCTURES, etc.
   order       Int
-  parentId    String?    // For tree structure
+  parentId    String? // For tree structure
   xpReward    Int
-  timeLimit   Int        // in seconds
-  content     Json       // Stores exercise data
+  timeLimit   Int // in seconds
+  content     Json // Stores exercise data
   progress    Progress[]
 }
 
@@ -58,7 +59,7 @@ model Friends {
   id        String   @id @default(cuid())
   userId    String
   friendId  String
-  status    String   // PENDING, ACCEPTED
+  status    String // PENDING, ACCEPTED
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }
@@ -75,7 +76,49 @@ model Course {
   id          String   @id @default(cuid())
   title       String
   description String
-  content     String
+  content     String?
+  topics      Topic[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Topic {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  duration    Int
+  order       Int
+  status      String      @default("locked") // "locked" | "available" | "completed"
+  completed   Boolean     @default(false)
+  completedAt DateTime?
+  courseId    String
+  course      Course      @relation(fields: [courseId], references: [id])
+  content     TopicContent?
+  userProgress TopicProgress[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([courseId, order])
+}
+
+model TopicContent {
+  id        String @id @default(cuid())
+  topicId   String @unique
+  content   String @db.Text // Markdown content with code examples
+  exercises Json // Array of exercise objects
+  topic     Topic  @relation(fields: [topicId], references: [id])
+}
+
+model TopicProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  topicId     String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id])
+  topic       Topic     @relation(fields: [topicId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, topicId])
 }

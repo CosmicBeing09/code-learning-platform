@@ -1,7 +1,7 @@
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { motion } from 'framer-motion';
-import { BookOpen, Code, Rocket } from 'lucide-react';
+import { BookOpen, Code, Rocket, Cog, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const courses = [
   {
     title: 'Python',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
     description: [
       'Data structures & algorithms fundamentals',
       'Web development with Django/Flask',
@@ -17,12 +18,12 @@ const courses = [
       'Machine learning with scikit-learn',
       'Automation and scripting',
     ],
-    icon: <Code className="w-6 h-6 text-blue-600" />,
     gradient: 'from-blue-100 via-blue-50 to-yellow-50',
     borderAccent: 'border-l-4 border-l-blue-500',
   },
   {
     title: 'JavaScript',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
     description: [
       'Modern ES6+ features and syntax',
       'React and Node.js development',
@@ -30,12 +31,12 @@ const courses = [
       'DOM manipulation & Web APIs',
       'Modern framework development',
     ],
-    icon: <BookOpen className="w-6 h-6 text-yellow-600" />,
     gradient: 'from-yellow-100 via-yellow-50 to-slate-50',
     borderAccent: 'border-l-4 border-l-yellow-500',
   },
   {
     title: 'Java',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',
     description: [
       'Object-oriented programming concepts',
       'Enterprise application development',
@@ -43,9 +44,34 @@ const courses = [
       'Android app development',
       'Design patterns & best practices',
     ],
-    icon: <Rocket className="w-6 h-6 text-red-600" />,
     gradient: 'from-red-100 via-red-50 to-orange-50',
     borderAccent: 'border-l-4 border-l-red-500',
+  },
+  {
+    title: 'Rust',
+    logo: 'https://raw.githubusercontent.com/rust-lang/rust-artwork/master/logo/rust-logo-512x512.png',
+    description: [
+      'Systems programming fundamentals',
+      'Memory safety and ownership',
+      'Concurrent programming',
+      'Cross-platform development',
+      'Performance optimization',
+    ],
+    gradient: 'from-orange-100 via-orange-50 to-red-50',
+    borderAccent: 'border-l-4 border-l-orange-500',
+  },
+  {
+    title: 'Go',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg',
+    description: [
+      'Concurrent programming with goroutines',
+      'Microservices development',
+      'Cloud-native applications',
+      'High-performance networking',
+      'Backend system design',
+    ],
+    gradient: 'from-cyan-100 via-cyan-50 to-blue-50',
+    borderAccent: 'border-l-4 border-l-cyan-500',
   },
 ];
 
@@ -125,15 +151,19 @@ export function Home() {
                 className={`relative p-6 rounded-lg border bg-gradient-to-br ${course.gradient} ${course.borderAccent} shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1`}
               >
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
-                    {course.icon}
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={course.logo}
+                      alt={`${course.title} logo`}
+                      className="w-8 h-8"
+                    />
                     <h3 className="text-xl font-semibold">{course.title}</h3>
                   </div>
                   <ul className="text-gray-600 mb-6 text-sm space-y-2">
                     {course.description.map((item, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="mr-2 mt-1.5">•</span>
-                        <span>{item}</span>
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-gray-500 mt-2"></span>
+                        <span className="flex-1">{item}</span>
                       </li>
                     ))}
                   </ul>

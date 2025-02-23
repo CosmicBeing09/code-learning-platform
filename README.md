@@ -86,6 +86,9 @@ npx prisma migrate dev
 
 # Generate Prisma client
 npx prisma generate
+
+# (Optional) Populate database with seed data for testing
+npm run seed   # This will create a dummy user and sample courses with topics
 ```
 
 ### 4. Running the Application

@@ -1,163 +1,219 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Code, Rocket, CheckCircle, Lock, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AuthHeader } from '../components/AuthHeader';
 
-interface CourseProgress {
+interface Course {
   id: string;
   title: string;
-  icon: React.ReactNode;
-  progress: number;
-  totalTopics: number;
-  completedTopics: number;
-  nextTopic: string;
-  gradient: string;
-  borderAccent: string;
-  status: 'in-progress' | 'not-started' | 'completed';
+  description: string;
+  topics: {
+    id: string;
+    title: string;
+    userProgress: {
+      completed: boolean;
+      completedAt: string;
+    }[];
+  }[];
 }
 
-const coursesProgress: CourseProgress[] = [
-  {
-    id: 'python',
-    title: 'Python',
-    icon: <Code className="w-6 h-6 text-blue-600" />,
-    progress: 20,
-    totalTopics: 5,
-    completedTopics: 1,
-    nextTopic: 'Control Flow',
-    gradient: 'from-blue-100 via-blue-50 to-yellow-50',
-    borderAccent: 'border-l-4 border-l-blue-500',
-    status: 'in-progress'
-  },
-  {
-    id: 'javascript',
-    title: 'JavaScript',
-    icon: <BookOpen className="w-6 h-6 text-yellow-600" />,
-    progress: 20,
-    totalTopics: 5,
-    completedTopics: 1,
-    nextTopic: 'DOM Manipulation',
-    gradient: 'from-yellow-100 via-yellow-50 to-slate-50',
-    borderAccent: 'border-l-4 border-l-yellow-500',
-    status: 'in-progress'
-  },
-  {
-    id: 'java',
-    title: 'Java',
-    icon: <Rocket className="w-6 h-6 text-red-600" />,
-    progress: 20,
-    totalTopics: 5,
-    completedTopics: 1,
-    nextTopic: 'Classes & Objects',
-    gradient: 'from-red-100 via-red-50 to-orange-50',
-    borderAccent: 'border-l-4 border-l-red-500',
-    status: 'in-progress'
-  }
-];
+interface CourseStats {
+  total: number;
+  completed: number;
+  ongoing: number;
+}
+
+const languageLogos = {
+  python: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+  javascript: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+  java: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',
+  rust: 'https://raw.githubusercontent.com/rust-lang/rust-artwork/master/logo/rust-logo-512x512.png',
+  go: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg'
+};
 
 export function LearningTree() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<CourseStats>({
+    total: 0,
+    completed: 0,
+    ongoing: 0
+  });
   const navigate = useNavigate();
 
-  const handleContinueCourse = (courseId: string) => {
-    navigate(`/course/${courseId}`);
-    toast.success(`Continuing ${courseId} course`);
-  };
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:3333/api/courses');
+        if (!response.ok) throw new Error('Failed to fetch courses');
+        const data = await response.json();
+
+        // Filter courses with at least one completed topic
+        const activeCourses = data.filter((course: Course) => 
+          course.topics.some(topic => 
+            topic.userProgress && topic.userProgress.length > 0 && topic.userProgress[0].completed
+          )
+        );
+
+        // Calculate stats
+        const completedCourses = activeCourses.filter((course: Course) => 
+          course.topics.every((topic: Course['topics'][0]) => 
+            topic.userProgress && topic.userProgress.length > 0 && topic.userProgress[0].completed
+          )
+        );
+
+        setStats({
+          total: data.length,
+          completed: completedCourses.length,
+          ongoing: activeCourses.length - completedCourses.length
+        });
+
+        setCourses(activeCourses);
+      } catch (error) {
+        toast.error('Failed to load learning progress');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (courses.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">Learning Tree</h1>
+          <p className="text-gray-600">
+            You haven't started any courses yet. 
+            <button 
+              onClick={() => navigate('/')}
+              className="text-blue-600 hover:text-blue-700 ml-2"
+            >
+              Browse available courses
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
       <AuthHeader />
-      <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold mb-4">Your Learning Progress</h1>
-          <p className="text-gray-600">
-            Track your progress across all programming courses
-          </p>
-        </motion.div>
+      <div className="container mx-auto max-w-6xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Your Learning Progress</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {coursesProgress.map((course) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`bg-white rounded-lg shadow-sm overflow-hidden ${course.borderAccent}`}
-            >
-              <div className={`p-6 bg-gradient-to-br ${course.gradient}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    {course.icon}
-                    <h3 className="text-xl font-semibold">{course.title}</h3>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-600">
-                      {course.completedTopics}/{course.totalTopics}
-                    </span>
-                    {course.status === 'completed' ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    ) : course.status === 'not-started' ? (
-                      <Lock className="w-5 h-5 text-gray-400" />
-                    ) : (
-                      <Star className="w-5 h-5 text-yellow-500" />
-                    )}
-                  </div>
-                </div>
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-medium text-gray-600">Total Courses</h3>
+            <p className="text-3xl font-bold text-gray-800 mt-2">{stats.total}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-medium text-gray-600">Completed</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">{stats.completed}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-medium text-gray-600">In Progress</h3>
+            <p className="text-3xl font-bold text-blue-600 mt-2">{stats.ongoing}</p>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          {courses.map((course) => {
+            const totalTopics = course.topics.length;
+            const completedTopics = course.topics.filter(topic => 
+              topic.userProgress?.some(progress => progress.completed)
+            ).length;
+            const progress = (completedTopics / totalTopics) * 100;
 
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${course.progress}%` }}
+            // Find next incomplete topic
+            const nextTopic = course.topics.find(topic => 
+              !topic.userProgress?.some(progress => progress.completed)
+            );
+
+            return (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-lg shadow-sm p-6"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src={languageLogos[course.id as keyof typeof languageLogos]}
+                    alt={`${course.id} logo`}
+                    className="w-12 h-12"
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Next Topic:</span>
-                    <span>{course.nextTopic}</span>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {course.title}
+                    </h2>
+                    <p className="text-gray-600">{course.description}</p>
                   </div>
                   <button
-                    onClick={() => handleContinueCourse(course.id)}
-                    className="w-full px-4 py-2 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={() => navigate(`/course/${course.id}`)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    Continue Learning
+                    Continue
                   </button>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-8 p-6 bg-white rounded-lg shadow-sm"
-        >
-          <h2 className="text-xl font-semibold mb-4">Overall Progress</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600 mb-1">
-                {coursesProgress.reduce((acc, curr) => acc + curr.completedTopics, 0)}
-              </div>
-              <div className="text-sm text-gray-600">Completed Topics</div>
-            </div>
-            <div className="p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600 mb-1">
-                {coursesProgress.length}
-              </div>
-              <div className="text-sm text-gray-600">Active Courses</div>
-            </div>
-            <div className="p-4 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600 mb-1">
-                {Math.round(coursesProgress.reduce((acc, curr) => acc + curr.progress, 0) / coursesProgress.length)}%
-              </div>
-              <div className="text-sm text-gray-600">Average Progress</div>
-            </div>
-          </div>
-        </motion.div>
+                <div>
+                  <div className="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>Progress</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {completedTopics} of {totalTopics} topics completed
+                  </p>
+                </div>
+
+                {nextTopic && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <h3 className="font-medium text-blue-800">Next up:</h3>
+                    <p className="text-blue-600">{nextTopic.title}</p>
+                  </div>
+                )}
+
+                <div className="mt-4">
+                  <h3 className="font-medium text-gray-700 mb-2">Recently completed:</h3>
+                  <div className="space-y-2">
+                    {course.topics
+                      .filter(topic => topic.userProgress?.some(p => p.completed))
+                      .slice(-2) // Show only last 2 completed topics
+                      .reverse()
+                      .map(topic => (
+                        <div key={topic.id} className="flex items-center gap-2 text-sm">
+                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                          <span className="text-gray-600">{topic.title}</span>
+                          <span className="text-gray-400 text-xs">
+                            {new Date(topic.userProgress[0].completedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

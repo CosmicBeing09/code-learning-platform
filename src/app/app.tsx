@@ -11,6 +11,7 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { CodeTranslator } from './pages/CodeTranslator';
 import { Billing } from './pages/Billing';
+import { TopicContent } from './pages/TopicContent';
 
 // Create a layout component to handle Navigation visibility
 function Layout({ children }: { children: React.ReactNode }) {
@@ -41,6 +42,7 @@ export function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/translator" element={<CodeTranslator />} />
           <Route path="/billing" element={<Billing />} />
+          <Route path="/course/:courseId/topic/:topicId" element={<TopicContent />} />
         </Routes>
       </Layout>
     </Router>

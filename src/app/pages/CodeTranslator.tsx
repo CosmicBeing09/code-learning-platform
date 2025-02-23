@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { Header } from '../components/Header';
-import { ArrowRight, Code2, Copy, Check } from 'lucide-react';
+import { ArrowRight, Code2, Copy, Check, Sun, Moon } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus, vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const programmingLanguages = [
   'JavaScript',
@@ -244,6 +246,7 @@ export function CodeTranslator() {
   const [targetLanguage, setTargetLanguage] = useState('Python');
   const [isTranslating, setIsTranslating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
 
   const handleTranslate = async () => {
     if (!sourceCode.trim()) {
@@ -259,7 +262,7 @@ export function CodeTranslator() {
     setIsTranslating(true);
 
     try {
-      const response = await fetch('http://localhost:3333/api/translate-code', {
+      const response = await fetch('http://localhost:3333/api/ai/translate-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -313,12 +316,20 @@ export function CodeTranslator() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex justify-between items-center"
         >
-          <h1 className="text-3xl font-bold mb-4">Code Translator</h1>
-          <p className="text-gray-600">
-            Translate code between different programming languages
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold mb-4">Code Translator</h1>
+            <p className="text-gray-600">
+              Translate code between different programming languages
+            </p>
+          </div>
+          <button
+            onClick={() => setIsDarkTheme(!isDarkTheme)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
+            {isDarkTheme ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -350,14 +361,24 @@ export function CodeTranslator() {
                 </select>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative h-[400px]">
               <textarea
                 value={sourceCode}
                 onChange={(e) => setSourceCode(e.target.value)}
-                placeholder="Enter your code here..."
-                className="w-full h-[400px] p-4 bg-white border rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full h-full font-mono p-4 bg-transparent border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{ 
+                  fontSize: '14px', 
+                  lineHeight: '1.5', 
+                  tabSize: 2,
+                  color: isDarkTheme ? '#fff' : '#000',
+                  backgroundColor: isDarkTheme ? '#1e1e1e' : '#ffffff',
+                  resize: 'none',
+                  whiteSpace: 'pre',
+                  overflowY: 'auto'
+                }}
+                spellCheck="false"
+                placeholder="Write your code here..."
               />
-              <Code2 className="absolute top-4 right-4 text-gray-400 w-5 h-5" />
             </div>
           </motion.div>
 
@@ -381,13 +402,28 @@ export function CodeTranslator() {
                 ))}
               </select>
             </div>
-            <div className="relative">
-              <textarea
-                value={translatedCode}
-                readOnly
-                placeholder="Translated code will appear here..."
-                className="w-full h-[400px] p-4 bg-gray-50 border rounded-lg font-mono text-sm focus:outline-none"
-              />
+            <div className="relative h-[400px]">
+              <SyntaxHighlighter
+                language={targetLanguage.toLowerCase()}
+                style={isDarkTheme ? vscDarkPlus : vs}
+                customStyle={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  margin: 0,
+                  padding: '1rem',
+                  fontSize: '14px',
+                  lineHeight: '1.5',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #e2e8f0',
+                  background: isDarkTheme ? '#1e1e1e' : '#f8f9fa',
+                  overflow: 'auto'
+                }}
+              >
+                {translatedCode || '// Translated code will appear here...'}
+              </SyntaxHighlighter>
               <button
                 onClick={handleCopy}
                 disabled={!translatedCode}
